@@ -6,23 +6,29 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
+  try {
+    const res = await api.post("/auth/login", {
+      email,
+      password,
+    });
 
-      localStorage.setItem("token", res.data.token);
+    console.log("LOGIN RESPONSE =", res.data);
 
-      alert("Login Success");
-    } catch (err) {
-      console.log(err.response?.data);
-      alert("Login Failed");
-    }
-  };
+    localStorage.setItem("token", res.data.token);
 
+    console.log(
+      "TOKEN AFTER SAVE =",
+      localStorage.getItem("token")
+    );
+
+    alert("Login Success");
+  } catch (err) {
+    console.log(err.response?.data);
+    alert("Login Failed");
+  }
+};
   return (
     <div>
       <h2>Login</h2>
