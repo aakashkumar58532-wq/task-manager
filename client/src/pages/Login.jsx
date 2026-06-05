@@ -1,56 +1,63 @@
-import { useState } from "react";
-import api from "../api/axios";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import API from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-  e.preventDefault();
+  const { login } = useContext(AuthContext);
 
-  try {
-    const res = await api.post("/auth/login", {
-      email,
-      password,
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    console.log("LOGIN RESPONSE =", res.data);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    localStorage.setItem("token", res.data.token);
+    try {
+      const res = await API.post(
+        "/auth/login",
+        form
+      );
 
-    console.log(
-      "TOKEN AFTER SAVE =",
-      localStorage.getItem("token")
-    );
+      login(res.data.token);
 
-    alert("Login Success");
-  } catch (err) {
-    console.log(err.response?.data);
-    alert("Login Failed");
-  }
-};
+      navigate("/dashboard");
+
+    } catch (err) {
+
+      alert("Login Failed");
+
+    }
+  };
+
   return (
     <div>
       <h2>Login</h2>
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleSubmit}>
         <input
           type="email"
+          name="email"
           placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleChange}
         />
-
-        <br /><br />
 
         <input
           type="password"
+          name="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={handleChange}
         />
-
-        <br /><br />
 
         <button type="submit">
           Login

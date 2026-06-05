@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import API from "../api/axios";
 
 function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
-  const token = localStorage.getItem("token");
 
   const fetchTasks = async () => {
     try {
-      const res = await api.get("/tasks", {
+      const res = await API.get("/tasks", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: localStorage.getItem("token"),
         },
       });
 
@@ -22,26 +19,25 @@ function Dashboard() {
     }
   };
 
-  const addTask = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
+  const addTask = async () => {
     try {
-      await api.post(
+      await API.post(
         "/tasks",
         {
           title,
-          description,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: localStorage.getItem("token"),
           },
         }
       );
 
       setTitle("");
-      setDescription("");
-
       fetchTasks();
     } catch (err) {
       console.log(err);
@@ -50,9 +46,9 @@ function Dashboard() {
 
   const deleteTask = async (id) => {
     try {
-      await api.delete(`/tasks/${id}`, {
+      await API.delete(`/tasks/${id}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: localStorage.getItem("token"),
         },
       });
 
@@ -62,70 +58,34 @@ function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Task Dashboard</h1>
+    <div>
+      <h2>Dashboard</h2>
 
-      <form onSubmit={addTask}>
-        <input
-          type="text"
-          placeholder="Task Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+      <input
+        type="text"
+        placeholder="Task Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
 
-        <br />
-        <br />
-
-        <input
-          type="text"
-          placeholder="Task Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-        <br />
-        <br />
-
-        <button type="submit">Add Task</button>
-      </form>
+      <button onClick={addTask}>
+        Add Task
+      </button>
 
       <hr />
 
-      <h2>My Tasks</h2>
+      {tasks.map((task) => (
+        <div key={task._id}>
+          <h3>{task.title}</h3>
 
-      {tasks.length === 0 ? (
-        <p>No Tasks Found</p>
-      ) : (
-        tasks.map((task) => (
-          <div
-            key={task._id}
-            style={{
-              border: "1px solid gray",
-              padding: "10px",
-              marginBottom: "10px",
-            }}
+          <button
+            onClick={() => deleteTask(task._id)}
           >
-            <h3>{task.title}</h3>
-
-            <p>{task.description}</p>
-
-            <p>
-              <strong>Status:</strong> {task.status}
-            </p>
-
-            <button
-              onClick={() => deleteTask(task._id)}
-            >
-              Delete
-            </button>
-          </div>
-        ))
-      )}
+            Delete
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
