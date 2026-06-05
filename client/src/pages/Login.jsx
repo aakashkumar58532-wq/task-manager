@@ -1,12 +1,11 @@
-import { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useState } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
   const navigate = useNavigate();
 
-  const { login } = useContext(AuthContext);
+ 
 
   const [form, setForm] = useState({
     email: "",
@@ -29,7 +28,7 @@ function Login() {
         form
       );
 
-      login(res.data.token);
+      localStorage.setItem("token", res.data.token);
 
       navigate("/dashboard");
 
